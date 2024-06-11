@@ -1,0 +1,11 @@
+# preprocessing configuration parameters for deep learning inference
+---
+input_channel: ["uint32", 3]  #input channel
+input_h: ["uint32", 224] #input height
+input_w: ["uint32", 224]  #input width
+mean_type: ["uint32", 1] #0: no mean, 1:mean value 2:mean map
+mean_value_r: ["float", 103.94] #mean value for the 1st input channel
+mean_value_g: ["float", 116.78] #mean value for the 2nd input channel
+mean_value_b: ["float", 123.68] #mean value for the 3rd input channel
+mean_map: ["string", ./mean.txt] #if mean_type != 2, mean_map will be ignored
+scale_value: ["float", 0.017]    #scale factor, output = (input – mean) * scale
