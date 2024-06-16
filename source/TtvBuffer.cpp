@@ -5,6 +5,7 @@
  */
 
 #include <string>
+#include <fstream>
 #include "common.h"
 #include "TtvBuffer.h"
 
@@ -27,39 +28,32 @@ bool TtvBuffer::serialize(const std::string file, TtvBox& ttvbox) {
 }
 
 bool TtvBuffer::deserialize(const std::string& file, TtvBox& ttvbox) {
-    FILE* fp = fopen(file.c_str(), "rb");
-    if (!fp) {
-        TTV_LOGE("Error: cann't open file %s.", file.c_str());
+    std::ifstream in(file, std::ios::binary);
+    if (!in) {
+        TTV_LOGE("Error: failed to open file.");
         return false;
     }
-    deserialize(fp, ttvbox);
-    fclose(fp);
+
+    deserialize(in, ttvbox);
+    in.close();
 
     return true;
 }
 
-bool TtvBuffer::deserialize(FILE* file, TtvBox& ttvbox) {
+void TtvBuffer::deserialize(std::ifstream& file, TtvBox& ttvbox) {
     TTV_LOGI("Deserialize...");
 
     ttvbox.read(file);
     if (!ttvbox.unpack(ttvbox.getPackedBuffer(), ttvbox.getPackedBytes())) {
         TTV_LOGI("Deserialize succeeded, the total size is %d bytes", ttvbox.getPackedBytes());
     }
-    {
-        std::vector<uint8_t> tagList;
-        uint8_t numTags = ttvbox.getTagList(tagList);
-        TTV_LOGI("The deserialized ttv box contains %d ttv objects as follows:", numTags);
-        for (size_t ii = 0; ii < (size_t)numTags; ii++) {
-            TTV_LOGI("ii = %d, Tag = 0x%X", (int)ii, tagList[ii]);
-        }
-        // get contents of ttv box
-        ttvbox.getValue();
-    }
 
-    return true;
+    ttvbox.printTagList();
+
+    return;
 }
 
-bool TtvBuffer::deserialize(const void* buffer, TtvBox& ttvbox) {
+void TtvBuffer::deserialize(const void* buffer, TtvBox& ttvbox) {
     TTV_LOGI("Deserialize...");
 
     ttvbox.read(buffer);
@@ -67,18 +61,9 @@ bool TtvBuffer::deserialize(const void* buffer, TtvBox& ttvbox) {
         TTV_LOGI("Deserialize succeeded, the total size is %d bytes", ttvbox.getPackedBytes());
     }
 
-    {
-        std::vector<uint8_t> tagList;
-        uint8_t numTags = ttvbox.getTagList(tagList);
-        TTV_LOGI("The deserialized ttv box contains %d ttv objects as follows:", numTags);
-        for (size_t ii = 0; ii < (size_t)numTags; ii++) {
-            TTV_LOGI("ii = %d, Tag = 0x%X", (int32_t)ii, tagList[ii]);
-        }
-        // get contents of ttv box
-        ttvbox.getValue();
-    }
+    ttvbox.printTagList();
 
-    return true;
+    return;
 }
 
 } // namespace ttv

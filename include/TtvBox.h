@@ -126,6 +126,13 @@ public:
     uint8_t getTagList(std::vector<uint8_t> &list) const;
 
     /*
+     * @brief  print all the tags in the ttv box
+     * @param  void
+     * @return void
+     */
+    void printTagList() const;
+
+    /*
      * @brief  unpack a ttv box
      * after unpacking, all the tags are stored into the map mTtvMap so we can get their values
      * by the function get_xx_value()
@@ -191,16 +198,16 @@ public:
     bool read(const std::string& file);
     /*
      * @brief read the contents of the ttv box frome a file
-     * @param file    file handler
-     * @return true if readding sucessfully, false otherwise
+     * @param file    file stream object
+     * @return none
      */
-    bool read(FILE *file);
+    void read(std::ifstream& file);
     /*
      * @brief read the contents of the ttv box frome a buffer
-     * @param buffer    the pointer which points to a buffer
-     * @return true if readding sucessfully, false otherwise
+     * @param buffer pointer that points to the begining of contents of the file
+     * @return none
      */
-    bool read(const void* buffer);
+    void read(const void* buffer);
 
 public:
     TtvBox(const TtvBox&)  = delete;

@@ -328,17 +328,21 @@ bool TtvBox::write(const std::string& file) {
 }
 
 bool TtvBox::read(const std::string& file) {
-    std::fstream in(file, std::ios::binary | std::ios::ate | std::ios::in);
+    std::ifstream in(file, std::ios::binary);
     if (!in) {
         TTV_LOGE("Error: failed to open file.");
         return false;
     }
 
-    in.seekg(0, std::ios::beg);
+    read(in);
+    in.close();
+    return true;
+}
 
+void TtvBox::read(std::ifstream& file) {
     uint32_t newlength = 0;
     // read the number of bytes first and then the contents of the buffer
-    in.read(reinterpret_cast<char *>(&newlength), sizeof(uint32_t));
+    file.read(reinterpret_cast<char *>(&newlength), sizeof(uint32_t));
     newlength    = ntohl(newlength);
     mPackedBytes = newlength;
     TTV_LOGI("The size of ttv box is: mPackedBytes = %d bytes", mPackedBytes);
@@ -346,38 +350,12 @@ bool TtvBox::read(const std::string& file) {
     mPackedBuffer.reset(new uint8_t[mPackedBytes]);
 
     // read the TTV data buffer
-    in.read(reinterpret_cast<char *>(mPackedBuffer.get()), mPackedBytes);
-    in.close();
+    file.read(reinterpret_cast<char *>(mPackedBuffer.get()), mPackedBytes);
 
-    return true;
+    return;
 }
 
-bool TtvBox::read(FILE *file) {
-    if (!file) {
-        TTV_LOGE("Error: error file handler");
-        return false;
-    }
-
-    fseek(file, 0, SEEK_SET);
-
-    uint32_t newlength = 0;
-    // read the number of bytes frist and then the contents of the buffer
-    fread(&newlength, sizeof(uint8_t), sizeof(uint32_t), file);
-
-    newlength    = ntohl(newlength);
-    mPackedBytes = newlength;
-    // in.read(reinterpret_cast<char *>(&mPackedBytes), sizeof(mPackedBytes));
-    mPackedBuffer.reset(new uint8_t[mPackedBytes]);
-
-    // read the TTV data buffer
-    fread(mPackedBuffer.get(), sizeof(uint8_t), mPackedBytes, file);
-
-    TTV_LOGI("The size of ttv box is: mPackedBytes = %d bytes", mPackedBytes);
-
-    return true;
-}
-
-bool TtvBox::read(const void* buffer) {
+void TtvBox::read(const void* buffer) {
     uint32_t newlength = 0;
     // read the number of bytes frist and then the contents of the buffer
     ::memcpy((void *)&newlength, (void *)buffer, sizeof(uint32_t));
@@ -393,7 +371,7 @@ bool TtvBox::read(const void* buffer) {
     ::memcpy((void *)mPackedBuffer.get(), (void *)newbuffer, static_cast<size_t>(mPackedBytes));
 
     TTV_LOGI("The size of ttv box is: mPackedBytes = %d bytes", mPackedBytes);
-    return true;
+    return;
 }
 
 uint8_t* TtvBox::getPackedBuffer() const {
@@ -599,6 +577,17 @@ uint8_t TtvBox::getTagList(std::vector<uint8_t>& list) const {
     }
 
     return list.size();
+}
+
+void TtvBox::printTagList() const {
+    std::vector<uint8_t> tagList;
+    uint8_t numTags = getTagList(tagList);
+    TTV_LOGI("The deserialized ttv box contains %d ttv objects as follows:", numTags);
+    for (size_t ii = 0; ii < (size_t)numTags; ii++) {
+        TTV_LOGI("ii = %d, Tag = 0x%X", (int32_t)ii, tagList[ii]);
+    }
+    // get contents of ttv box
+    getValue();
 }
 
 } // namespace ttv

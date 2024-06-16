@@ -26,27 +26,27 @@ public:
 
     /*
     * @brief decode a ttv box from file (already open) and write it to a ttv box
-    * @param file          file handler
+    * @param file       file stream object
     * @param ttvbox     the ttv box to be decoded
     * @return true if encoding sucessfully, false otherwise
     */
-    bool deserialize(FILE* file, TtvBox& ttvbox);
+    void deserialize(std::ifstream& file, TtvBox& ttvbox);
 
     /*
     * @brief decode a ttv box from file (not open yet) and write it to a ttv box
-    * @param file          file handler
+    * @param file       file name
     * @param ttvbox     the ttv box to be decoded
-    * @return true if encoding sucessfully, false otherwise
+    * @return none
     */
     bool deserialize(const std::string& file, TtvBox& ttvbox);
 
     /*
     * @brief decode a ttv box from buffer and write it to a ttv box
-    * @param file          file handler
+    * @param buffer     pointer that points to the begining of contents of the file
     * @param ttvbox     the ttv box to be decoded
-    * @return true if encoding sucessfully, false otherwise
+    * @return none
     */
-    bool deserialize(const void* buffer, TtvBox& ttvbox);
+    void deserialize(const void* buffer, TtvBox& ttvbox);
 };
 
 } // namespace ttv
