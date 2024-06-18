@@ -12,15 +12,17 @@ set(CMAKE_CXX_FLAGS_RELEASE "-std=c++11  -Wall -w -O3 -fPIC -pthread -fsigned-ch
 set(CMAKE_C_FLAGS_DEBUG "-g -ggdb -std=c11 -Wall -w -O0 -fPIC -pthread -fsigned-char -save-temps")
 set(CMAKE_C_FLAGS_RELEASE "-std=c11 -Wall -w -O3 -fPIC -pthread -fsigned-char")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR})
 
-file(GLOB TTV_SRCS ${CMAKE_CURRENT_LIST_DIR}/source/Ttv.cpp ${CMAKE_CURRENT_LIST_DIR}/source/TtvBox.cpp ${CMAKE_CURRENT_LIST_DIR}/source/TtvBuffer.cpp)
+file(GLOB TTV_SRCS ${CMAKE_SOURCE_DIR}/source/Ttv.cpp ${CMAKE_SOURCE_DIR}/source/TtvBox.cpp ${CMAKE_SOURCE_DIR}/source/TtvBuffer.cpp)
 message("TTV_SRCS: " ${TTV_SRCS})
+# create the dynamic library: libTTV.so on Linux or libTTV.dll on Windows
 add_library(TTV SHARED ${TTV_SRCS})
 
 set(TTV_DEPS "")
 list(APPEND TTV_DEPS TTV)
 
+# link the dynamic library: libTTV.so on Linux or libTTV.dll on Windows
 if(CMAKE_SYSTEM_NAME MATCHES "^Linux")
 set(TTV_DEPS -Wl,--whole-archive ${TTV_DEPS} -lpthread -Wl,--no-whole-archive)
 else()
